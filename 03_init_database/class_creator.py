@@ -7,7 +7,7 @@ from psycopg import sql
 # И заполняет таблицу classes в базе данных postgreSQL
 
 # Путь к yaml файлу датасета
-pth_dataset = '''C:/Repos/Ayrapetov/07_AI_project/01_learn/datasets/AutoCAD_Topo_v7/data.yaml'''
+pth_dataset = '''../01_learn/datasets/AutoCAD_Topo_v7/data.yaml'''
 # Название схемы и таблицы
 schema_name_in_db = 'workflow'
 table_name_in_db = 'classes'
