@@ -7,10 +7,12 @@ from psycopg import sql
 # И заполняет таблицу classes в базе данных postgreSQL
 
 # Путь к yaml файлу датасета
-pth_dataset = 'C:/Repos/Ayrapetov/07_AI_project/01_learn/datasets/AutoCAD_Topo_v7/data.yaml'
+pth_dataset = '''C:/Repos/Ayrapetov/07_AI_project/01_learn/datasets/
+    AutoCAD_Topo_v7/data.yaml'''
 # Название схемы и таблицы
 schema_name_in_db = 'workflow'
 table_name_in_db = 'classes'
+
 
 def main():
     # Извлекает из датасета имена для классов
@@ -18,7 +20,6 @@ def main():
         yaml_read_data = yaml.load(yaml_file, Loader=yaml.FullLoader)
     # Извлекает из словаря только имена классов
     class_names = yaml_read_data['names']
-    class_count = yaml_read_data['nc']
 
     # Создание SQL запроса на извлечение данных о классах
     query_return = sql.SQL('''
