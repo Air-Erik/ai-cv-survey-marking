@@ -36,7 +36,7 @@ password=1111') as conn:
 # Создание нового списка изображений без уже имеющихся в базе данных
 image_names_new = [x for x in file_names if x not in image_names_in_db]
 
-# Создание списка списков в формате: 
+# Создание списка списков в формате:
 # [[Название чертежа, номер строки, номер столбца], ...]
 unpack_image_names = []
 for name in image_names_new:
