@@ -88,4 +88,4 @@ def image_creator_func():
 
 
 if __name__ == '__main__':
-    image_creator()
+    image_creator_func()
