@@ -45,7 +45,8 @@ for name in image_names_new:
     unpack_image_names.append(name.replace('.jpg', '').split('_'))
 
 # Вывод информации о изображениях для вставки в БД
-print('Информация о добавляемых изображениях:', unpack_image_names, '', sep='\n')
+print('Информация о добавляемых изображениях:', unpack_image_names, '', 
+      sep='\n')
 
 # Создание SQL запроса на добавление данных о изображениях
 query_input = sql.SQL('''
