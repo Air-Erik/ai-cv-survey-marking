@@ -1,3 +1,4 @@
+import sys
 import os
 import psycopg
 from psycopg import sql
@@ -27,6 +28,7 @@ query_return = sql.SQL('''
 with psycopg.connect('dbname=ai_project user=API_write_data \
 password=1111') as conn:
     # Вывод запросов перед выполнением
+    print('SQL-запрос на извлечение существующих записей из БД:')
     print(query_return.as_string(conn))
     # Извлечение списка изображений
     record = conn.cursor().execute(query_return).fetchall()
@@ -42,6 +44,9 @@ unpack_image_names = []
 for name in image_names_new:
     unpack_image_names.append(name.replace('.jpg', '').split('_'))
 
+# Вывод информации о изображениях для вставки в БД
+print('Информация о добавляемых изображениях:', unpack_image_names, '', sep='\n')
+
 # Создание SQL запроса на добавление данных о изображениях
 query_input = sql.SQL('''
     INSERT INTO {table_img}
@@ -56,17 +61,24 @@ query_input = sql.SQL('''
 with psycopg.connect('dbname=ai_project user=API_write_data \
 password=1111') as conn:
     # Вывод запросов перед выполнением
+    print('SQL-запрос на вставку записей в БД:')
     print(query_input.as_string(conn))
     i = 0
     for image in unpack_image_names:
-        conn.execute(
-            query_input, (
-                image_names_new[i],
-                image[0],
-                image[0],
-                image[1],
-                image[2]
+        try:
+            conn.execute(
+                query_input, (
+                    image_names_new[i],
+                    image[0],
+                    image[0],
+                    image[1],
+                    image[2]
+                )
             )
-        )
+        except psycopg.errors.NotNullViolation:
+            print('Не удалось добавить запись в базу данных')
+            print(f'План с именем "{image[0]}" не существует в \
+                {schema_name_in_db}.{drawing_table_name_in_db}')
+            sys.exit(1)
         i += 1
-    print(f'Успешно добавлено {len(unpack_image_names)} изображений')
+    print(f'Успешно добавлено изображений: {len(image_names_new)}')
