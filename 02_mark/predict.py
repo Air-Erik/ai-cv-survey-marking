@@ -34,16 +34,6 @@ query_input = sql.SQL('''
     table_image=sql.Identifier(schema_name_in_db, image_table_name_in_db)
 )
 
-query_unique = sql.SQL('''
-    SELECT DISTINCT
-        x_1,
-        y_1,
-        x_2,
-        y_2,
-        image_name
-    FROM {table_raw_mark}
-''')
-
 # Загрузка модели для пердсказания
 model = YOLO(f"{custom_weights}/best.pt")
 

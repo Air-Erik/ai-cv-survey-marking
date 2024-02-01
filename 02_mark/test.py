@@ -1,9 +1,17 @@
-import pandas as pd
+import psycopg
+from psycopg import sql
 
+schema_name_in_db = 'workflow'
+mark_table_name_in_db = 'raw_mark_data'
 
-df = pd.DataFrame({'points': [25, 12, 15, 14, 19],
-    'assists': [5, 7, 7, 9, 12],
-    'rebounds': [11, 8, 10, 6, 6]})
+query_unique = sql.SQL('''
+    SELECT DISTINCT
+        image_name
+    FROM {table_raw_mark}
+''').format(
+    table_raw_mark=sql.Identifier(schema_name_in_db, mark_table_name_in_db)
+)
 
-for i in df.index:
-    print(df['points'][i])
+with psycopg.connect('dbname=ai_project user=API_write_data \
+password=1111') as conn:
+    conn.execute(query_unique)
