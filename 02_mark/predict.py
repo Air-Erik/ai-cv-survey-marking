@@ -23,17 +23,26 @@ custom_weights = 'weight'
 query_input = sql.SQL('''
     INSERT INTO {table_raw_mark}
     (x_1, y_1, x_2, y_2, percent, image_name, class_id, image_id, plan_id)
-    VALUES (
+    SELECT
         %s, %s, %s, %s, %s, %s,
         (SELECT class_id FROM {table_class} WHERE class = %s),
         (SELECT image_id FROM {table_image} WHERE image_name = %s),
         (SELECT plan_id FROM {table_image} WHERE image_name = %s)
-    )
 ''').format(
     table_raw_mark=sql.Identifier(schema_name_in_db, mark_table_name_in_db),
     table_class=sql.Identifier(schema_name_in_db, class_table_name_in_db),
     table_image=sql.Identifier(schema_name_in_db, image_table_name_in_db)
 )
+
+query_unique = sql.SQL('''
+    SELECT DISTINCT
+        x_1,
+        y_1,
+        x_2,
+        y_2,
+        image_name
+    FROM {table_raw_mark}
+''')
 
 # Загрузка модели для пердсказания
 model = YOLO(f"{custom_weights}/best.pt")
