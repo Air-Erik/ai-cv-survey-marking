@@ -14,12 +14,17 @@ image_table_name_in_db = 'image_data'
 drawing_table_name_in_db = 'drawing_data'
 
 
-def image_creator_func():
+def file_names_and_pth_creator():
     # Получение списка имен файлов и списка полных путей к файлам
     file_names = os.listdir(pth_raw)
     source = []
     for i in range(len(file_names)):
         source.append(os.path.join(pth_raw, file_names[i]))
+    return source, file_names
+
+
+def main():
+    source, file_names = file_names_and_pth_creator()
 
     # Создание SQL запроса на извлечение данных о изображениях
     query_return = sql.SQL('''
@@ -88,4 +93,5 @@ def image_creator_func():
 
 
 if __name__ == '__main__':
-    image_creator_func()
+    file_names_and_pth_creator()
+    main()
