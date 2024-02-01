@@ -14,6 +14,7 @@ image_table_name_in_db = 'image_data'
 drawing_table_name_in_db = 'drawing_data'
 
 
+# Функция возвращает списки имен и путей к файлам изображений
 def file_names_and_pth_creator():
     # Получение списка имен файлов и списка полных путей к файлам
     file_names = os.listdir(pth_raw)
@@ -23,7 +24,9 @@ def file_names_and_pth_creator():
     return source, file_names
 
 
-def main():
+# Функция записывает в базу данных информацию об изображениях
+# включая принадлежность к чертежу
+def image_data_creater():
     source, file_names = file_names_and_pth_creator()
 
     # Создание SQL запроса на извлечение данных о изображениях
@@ -94,4 +97,4 @@ def main():
 
 if __name__ == '__main__':
     file_names_and_pth_creator()
-    main()
+    image_data_creater()
