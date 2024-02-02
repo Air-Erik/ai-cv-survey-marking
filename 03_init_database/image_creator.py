@@ -56,13 +56,14 @@ def image_data_creater():
 
     # Вывод информации о изображениях для вставки в БД
     print('Информация о добавляемых изображениях:', unpack_image_names, '',
-        sep='\n')
+          sep='\n')
 
     # Создание SQL запроса на добавление данных о изображениях
     query_input = sql.SQL('''
         INSERT INTO {table_img}
         (image_name, plan_name, plan_id, row_image, column_image)
-        VALUES (%s, %s, (SELECT plan_id FROM {table_pln} WHERE plan_name = %s), %s, %s)
+        VALUES (%s, %s, (SELECT plan_id FROM {table_pln} WHERE plan_name = %s),
+        %s, %s)
     ''').format(
         table_img=sql.Identifier(schema_name_in_db, image_table_name_in_db),
         table_pln=sql.Identifier(schema_name_in_db, drawing_table_name_in_db)
