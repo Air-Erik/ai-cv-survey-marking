@@ -14,7 +14,8 @@ BEGIN
             AND y_2 = NEW.y_2
             AND image_name = NEW.image_name
     ) THEN
-        RAISE EXCEPTION 'Дубликат значений x_1, y_1, x_2, y_2, image_name';
+    -- Если дубликат найден, просто завершаем выполнение триггера
+        RETURN NULL;
     END IF;
 
     -- Если проверка прошла успешно, возвращаем NEW для выполнения вставки

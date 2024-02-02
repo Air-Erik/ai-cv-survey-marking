@@ -82,8 +82,8 @@ def mark_add():
         with psycopg.connect('dbname=ai_project user=API_write_data \
         password=1111') as conn:
 
-            for i in df.index:
-                try:
+            try:
+                for i in df.index:
                     conn.execute(
                         query_input, (
                             df['x1'][i],
@@ -97,19 +97,11 @@ def mark_add():
                             df['image_name'][i]
                         )
                     )
-                except psycopg.errors.NotNullViolation:
-                    print('Не удалось добавить запись в базу данных')
-                    print(f'Проблема в изображении {image_name}, \
-с классом {class_names[class_id]}')
-                except psycopg.errors.RaiseException:
-                    print(f'Не удалось вставить строку {i} изображения {image_name}')
-                except psycopg.errors.InFailedSqlTransaction:
-                    pass
-
-        print(f'Успешно добавлены метки из изображения {image_name}')
-
-
-
+                print(f'Успешно добавлены метки из изображения {image_name}')
+            except psycopg.errors.NotNullViolation:
+                print(f'Не удалось добавить метки из изображения {image_name}')
+            # except psycopg.errors.RaiseException:
+                # print(f'Не удалось вставить строку {i} изображения {image_name}')
 
 
 if __name__ == '__main__':
