@@ -14,7 +14,7 @@ from image_creator import file_names_and_pth_creator
 schema_name_in_db = 'workflow'
 class_table_name_in_db = 'classes'
 image_table_name_in_db = 'image_data'
-mark_table_name_in_db = 'raw_mark_data'
+raw_mark_table_name_in_db = 'raw_mark_data'
 weight_pth = "C:\\Repos\\Ayrapetov\\07_AI_project\\02_mark\\weight\\best.pt"
 # Путь к папке с файлами для анализа
 pth_raw = 'C:\\Repos\\Ayrapetov\\07_AI_project\\02_mark\\images'
@@ -36,7 +36,8 @@ def mark_add():
             (SELECT image_id FROM {table_image} WHERE image_name = %s),
             (SELECT plan_id FROM {table_image} WHERE image_name = %s)
     ''').format(
-        table_raw_mark=sql.Identifier(schema_name_in_db, mark_table_name_in_db),
+        table_raw_mark=sql.Identifier(schema_name_in_db,
+                                      raw_mark_table_name_in_db),
         table_class=sql.Identifier(schema_name_in_db, class_table_name_in_db),
         table_image=sql.Identifier(schema_name_in_db, image_table_name_in_db)
     )
@@ -100,32 +101,16 @@ def mark_add():
                     print('Не удалось добавить запись в базу данных')
                     print(f'Проблема в изображении {image_name}, \
 с классом {class_names[class_id]}')
+                except psycopg.errors.RaiseException:
+                    print(f'Не удалось вставить строку {i} изображения {image_name}')
+                except psycopg.errors.InFailedSqlTransaction:
+                    pass
 
         print(f'Успешно добавлены метки из изображения {image_name}')
 
 
-def mark_delete_dublicat():
-    query_unique = sql.SQL('''
-    DELETE FROM {table_raw_mark} a
-    USING {table_raw_mark} b
-    WHERE a.mark_id > b.mark_id
-        AND a.x_1 = b.x_1
-        AND a.y_1 = b.y_1
-        AND a.x_2 = b.x_2
-        AND a.y_2 = b.y_2
-        AND a.image_name = b.image_name;
-    ''').format(
-        table_raw_mark=sql.Identifier(schema_name_in_db, mark_table_name_in_db)
-    )
 
-    with psycopg.connect('dbname=ai_project user=API_write_data \
-    password=1111') as conn:
-        conn.execute(query_unique)
 
 
 if __name__ == '__main__':
-    try:
-        mark_add()
-    except psycopg.errors.InFailedSqlTransaction:
-        mark_delete_dublicat()
-    mark_delete_dublicat()
+    mark_add()
