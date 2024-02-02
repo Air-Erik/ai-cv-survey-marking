@@ -9,85 +9,123 @@ sys.path.insert(0, '../03_init_database')
 
 from image_creator import file_names_and_pth_creator
 
-# Получение списков полных путей и имен изображений
-full_path_images, image_names = file_names_and_pth_creator()
 
 # Название схемы и таблиц и папки с обученными весами
 schema_name_in_db = 'workflow'
 class_table_name_in_db = 'classes'
 image_table_name_in_db = 'image_data'
 mark_table_name_in_db = 'raw_mark_data'
-custom_weights = 'weight'
+weight_pth = "C:\\Repos\\Ayrapetov\\07_AI_project\\02_mark\\weight\\best.pt"
+# Путь к папке с файлами для анализа
+pth_raw = 'C:\\Repos\\Ayrapetov\\07_AI_project\\02_mark\\images'
 
-# Создание SQL запроса на добавление данных о рамках
-query_input = sql.SQL('''
-    INSERT INTO {table_raw_mark}
-    (x_1, y_1, x_2, y_2, percent, image_name, class_id, image_id, plan_id)
-    SELECT
-        %s, %s, %s, %s, %s, %s,
-        (SELECT class_id FROM {table_class} WHERE class = %s),
-        (SELECT image_id FROM {table_image} WHERE image_name = %s),
-        (SELECT plan_id FROM {table_image} WHERE image_name = %s)
-''').format(
-    table_raw_mark=sql.Identifier(schema_name_in_db, mark_table_name_in_db),
-    table_class=sql.Identifier(schema_name_in_db, class_table_name_in_db),
-    table_image=sql.Identifier(schema_name_in_db, image_table_name_in_db)
-)
 
-# Загрузка модели для пердсказания
-model = YOLO(f"{custom_weights}/best.pt")
+def mark_add():
+    # Получение списков полных путей и имен изображений
+    full_path_images = file_names_and_pth_creator(pth_to_image=pth_raw)[0]
+    file_names = file_names_and_pth_creator(pth_to_image=pth_raw)[1]
+    print('Будут проанализированы изображения:', file_names, sep='\n')
 
-# Предсказание. Параметр conf определяет достоверный порог вероятности при
-# котором засчитывается обнаружение
-results = model(full_path_images, conf=0.70)
+    # Создание SQL запроса на добавление данных о рамках
+    query_input = sql.SQL('''
+        INSERT INTO {table_raw_mark}
+        (x_1, y_1, x_2, y_2, percent, image_name, class_id, image_id, plan_id)
+        SELECT
+            %s, %s, %s, %s, %s, %s,
+            (SELECT class_id FROM {table_class} WHERE class = %s),
+            (SELECT image_id FROM {table_image} WHERE image_name = %s),
+            (SELECT plan_id FROM {table_image} WHERE image_name = %s)
+    ''').format(
+        table_raw_mark=sql.Identifier(schema_name_in_db, mark_table_name_in_db),
+        table_class=sql.Identifier(schema_name_in_db, class_table_name_in_db),
+        table_image=sql.Identifier(schema_name_in_db, image_table_name_in_db)
+    )
 
-# Обработка результатов анализа
-for r in results:
+    # Загрузка модели для пердсказания
+    model = YOLO(weight_pth)
 
-    # Запись результатов работы нейросети.
-    # Рамки, проценты, имена обработанных изображений и номера классов
-    frames = r.boxes.xyxy.cpu().numpy()
-    percent = r.boxes.conf.cpu().numpy()
-    image_name = r.path.split('\\')[-1:][0]
-    class_id = r.boxes.cls.cpu().numpy()
-    class_id = int(class_id[0])
+    # Предсказание. Параметр conf определяет достоверный порог вероятности при
+    # котором засчитывается обнаружение
+    results = model(full_path_images, conf=0.70)
 
-    # Создание списка имен классов и перевод их к виду словаря
-    # в виде {номер: название класса}
-    class_names = r.names
-    class_names = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in class_names.items()}
+    # Обработка результатов в цикле для каждого изображения
+    for r in results:
 
-    # Создание таблицы pandas
-    df = pd.DataFrame(frames, columns=['x1', 'y1', 'x2', 'y2'])
-    df['percent'] = pd.DataFrame(percent)
-    df['class_name'] = class_names[class_id]
-    df['image_name'] = image_name
-    # Приведение к типу float64 потому что postgreSQL ругается на тип
-    # данных float32
-    df = df.astype({'x1': 'float64',
-                    'y1': 'float64',
-                    'x2': 'float64',
-                    'y2': 'float64',
-                    'percent': 'float64'})
+        # Запись результатов работы нейросети.
+        # Рамки, проценты, имена обработанных изображений и номера классов
+        frames = r.boxes.xyxy.cpu().numpy()
+        percent = r.boxes.conf.cpu().numpy()
+        image_name = r.path.split('\\')[-1:][0]
+        class_id = r.boxes.cls.cpu().numpy()
+        class_id = int(class_id[0])
 
-    # Подключение к базе данных и исполнение SQL запроса на вставку данных
+        # Создание списка имен классов и перевод их к виду словаря
+        # в виде {номер: название класса}
+        class_names = r.names
+        class_names = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in class_names.items()}
+
+        # Создание таблицы pandas
+        df = pd.DataFrame(frames, columns=['x1', 'y1', 'x2', 'y2'])
+        df['percent'] = pd.DataFrame(percent)
+        df['class_name'] = class_names[class_id]
+        df['image_name'] = image_name
+        # Приведение к типу float64 потому что postgreSQL ругается на тип
+        # данных float32
+        df = df.astype({'x1': 'float64',
+                        'y1': 'float64',
+                        'x2': 'float64',
+                        'y2': 'float64',
+                        'percent': 'float64'})
+
+        # Подключение к базе данных и исполнение SQL запроса на вставку данных
+        with psycopg.connect('dbname=ai_project user=API_write_data \
+        password=1111') as conn:
+
+            for i in df.index:
+                try:
+                    conn.execute(
+                        query_input, (
+                            df['x1'][i],
+                            df['y1'][i],
+                            df['x2'][i],
+                            df['y2'][i],
+                            df['percent'][i],
+                            df['image_name'][i],
+                            df['class_name'][i],
+                            df['image_name'][i],
+                            df['image_name'][i]
+                        )
+                    )
+                except psycopg.errors.NotNullViolation:
+                    print('Не удалось добавить запись в базу данных')
+                    print(f'Проблема в изображении {image_name}, \
+с классом {class_names[class_id]}')
+
+        print(f'Успешно добавлены метки из изображения {image_name}')
+
+
+def mark_delete_dublicat():
+    query_unique = sql.SQL('''
+    DELETE FROM {table_raw_mark} a
+    USING {table_raw_mark} b
+    WHERE a.mark_id > b.mark_id
+        AND a.x_1 = b.x_1
+        AND a.y_1 = b.y_1
+        AND a.x_2 = b.x_2
+        AND a.y_2 = b.y_2
+        AND a.image_name = b.image_name;
+    ''').format(
+        table_raw_mark=sql.Identifier(schema_name_in_db, mark_table_name_in_db)
+    )
+
     with psycopg.connect('dbname=ai_project user=API_write_data \
     password=1111') as conn:
-        # Вывод запросов перед выполнением
-        print('SQL-запрос на вставку записей в БД:')
-        print(query_input.as_string(conn))
+        conn.execute(query_unique)
 
-        for i in df.index:
-            conn.execute(
-                query_input, (
-                    df['x1'][i],
-                    df['y1'][i],
-                    df['x2'][i],
-                    df['y2'][i],
-                    df['percent'][i],
-                    df['image_name'][i],
-                    df['class_name'][i],
-                    df['image_name'][i],
-                    df['image_name'][i]
-                )
-            )
+
+if __name__ == '__main__':
+    try:
+        mark_add()
+    except psycopg.errors.InFailedSqlTransaction:
+        mark_delete_dublicat()
+    mark_delete_dublicat()

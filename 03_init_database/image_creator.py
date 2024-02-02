@@ -15,12 +15,12 @@ drawing_table_name_in_db = 'drawing_data'
 
 
 # Функция возвращает списки имен и путей к файлам изображений
-def file_names_and_pth_creator():
+def file_names_and_pth_creator(pth_to_image=pth_raw):
     # Получение списка имен файлов и списка полных путей к файлам
-    file_names = os.listdir(pth_raw)
+    file_names = os.listdir(pth_to_image)
     source = []
     for i in range(len(file_names)):
-        source.append(os.path.join(pth_raw, file_names[i]))
+        source.append(os.path.join(pth_to_image, file_names[i]))
     return source, file_names
 
 
@@ -72,8 +72,8 @@ def image_data_creater():
     with psycopg.connect('dbname=ai_project user=API_write_data \
     password=1111') as conn:
         # Вывод запросов перед выполнением
-        print('SQL-запрос на вставку записей в БД:')
-        print(query_input.as_string(conn))
+        # print('SQL-запрос на вставку записей в БД:')
+        # print(query_input.as_string(conn))
         i = 0
         for image in unpack_image_names:
             try:
