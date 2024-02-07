@@ -59,10 +59,10 @@ query_after_insert = sql.SQL('''
                 plan_id)
             VALUES
                 (NEW.mark_id,
-                (NEW.x_1 / 20) + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                (NEW.y_1 / 20) - (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                (NEW.x_2 / 20) + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                (NEW.y_2 / 20) - (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) + (NEW.x_1 / 20),
+                (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) - (NEW.y_1 / 20),
+                (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) + (NEW.x_2 / 20),
+                (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) - (NEW.y_2 / 20),
                 NEW.class_id,
                 NEW.plan_id
                 );
@@ -70,10 +70,10 @@ query_after_insert = sql.SQL('''
             -- Обновляет координаты
             UPDATE {table_mark}
             SET mark_id = NEW.mark_id,
-                x_1_final = (NEW.x_1 / 20) + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                y_1_final = (NEW.y_1 / 20) - (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                x_2_final = (NEW.x_2 / 20) + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                y_2_final = (NEW.y_2 / 20) - (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                x_1_final = (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) + (NEW.x_1 / 20),
+                y_1_final = (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) - (NEW.y_1 / 20),
+                x_2_final = (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) + (NEW.x_2 / 20),
+                y_2_final = (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) - (NEW.y_2 / 20),
                 class_id = NEW.class_id,
                 plan_id = NEW.plan_id
             WHERE mark_id = OLD.id;
