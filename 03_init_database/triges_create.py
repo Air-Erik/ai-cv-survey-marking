@@ -46,7 +46,9 @@ query_after_insert = sql.SQL('''
     CREATE OR REPLACE FUNCTION coordinate_conversion()
     RETURNS TRIGGER AS $$
     BEGIN
+    -- Проверяет тип операции после которой выполняется
         IF TG_OP = 'INSERT' THEN
+            -- Вставляет реальные координаты
             INSERT INTO {table_mark}
                 (mark_id,
                 x_1_final,
@@ -57,20 +59,21 @@ query_after_insert = sql.SQL('''
                 plan_id)
             VALUES
                 (NEW.mark_id,
-                NEW.x_1 + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                NEW.y_1 + (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                NEW.x_2 + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                NEW.y_2 + (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                (NEW.x_1 / 20) + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                (NEW.y_1 / 20) - (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                (NEW.x_2 / 20) + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                (NEW.y_2 / 20) - (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
                 NEW.class_id,
                 NEW.plan_id
                 );
         ELSIF TG_OP = 'UPDATE' THEN
+            -- Обновляет координаты
             UPDATE {table_mark}
             SET mark_id = NEW.mark_id,
-                x_1_final = NEW.x_1 + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                y_1_final = NEW.y_1 + (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                x_2_final = NEW.x_2 + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                y_2_final = NEW.y_2 + (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                x_1_final = (NEW.x_1 / 20) + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                y_1_final = (NEW.y_1 / 20) - (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                x_2_final = (NEW.x_2 / 20) + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
+                y_2_final = (NEW.y_2 / 20) - (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
                 class_id = NEW.class_id,
                 plan_id = NEW.plan_id
             WHERE mark_id = OLD.id;

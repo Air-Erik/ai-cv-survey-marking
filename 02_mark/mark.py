@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from ultralytics import YOLO
 from psycopg import sql
+from PIL import Image
 
 sys.path.insert(0, '../03_init_database')
 
@@ -49,6 +50,7 @@ def mark_add():
     # котором засчитывается обнаружение
     results = model(full_path_images, conf=0.70)
 
+    # i = 0 # Нужно для вывода размеченых изображений
     # Обработка результатов в цикле для каждого изображения
     for r in results:
 
@@ -59,6 +61,11 @@ def mark_add():
         image_name = r.path.split('\\')[-1:][0]
         class_id = r.boxes.cls.cpu().numpy()
         class_id = int(class_id[0])
+
+        # Создание размеченых изображений
+        # im_array = r.plot()
+        # im = Image.fromarray(im_array[..., ::-1])
+        # im.save(f'result/{image_name}')
 
         # Создание списка имен классов и перевод их к виду словаря
         # в виде {номер: название класса}
@@ -102,6 +109,7 @@ def mark_add():
                 print(f'Не удалось добавить метки из изображения {image_name}')
             # except psycopg.errors.RaiseException:
                 # print(f'Не удалось вставить строку {i} изображения {image_name}')
+    # i += 1 # Нужно для вывода размеченых изображений
 
 
 if __name__ == '__main__':
