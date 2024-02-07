@@ -61,8 +61,8 @@ query_after_insert = sql.SQL('''
                 NEW.y_1 + (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
                 NEW.x_2 + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
                 NEW.y_2 + (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                class_id,
-                plan_id
+                NEW.class_id,
+                NEW.plan_id
                 );
         ELSIF TG_OP = 'UPDATE' THEN
             UPDATE {table_mark}
@@ -71,8 +71,8 @@ query_after_insert = sql.SQL('''
                 y_1_final = NEW.y_1 + (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
                 x_2_final = NEW.x_2 + (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
                 y_2_final = NEW.y_2 + (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id),
-                class_id,
-                plan_id
+                class_id = NEW.class_id,
+                plan_id = NEW.plan_id
             WHERE mark_id = OLD.id;
         END IF;
         RETURN NEW;
