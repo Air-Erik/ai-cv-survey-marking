@@ -5,6 +5,7 @@ from psycopg import sql
 # Название схемы и таблиц
 schema_name_in_db = 'workflow'
 drawing_table_name_in_db = 'drawing_data'
+image_table_name_in_db = 'image_data'
 raw_mark_table_name_in_db = 'raw_mark_data'
 mark_table_name_in_db = 'mark_data'
 
@@ -45,7 +46,21 @@ query_triger_before_insert = sql.SQL('''
 query_after_insert = sql.SQL('''
     CREATE OR REPLACE FUNCTION coordinate_conversion()
     RETURNS TRIGGER AS $$
+    DECLARE
+        row_plan integer;
+        column_plan integer;
+        x_from_plan numeric;
+        y_from_plan numeric;
+
     BEGIN
+        SELECT row_image, column_image INTO row_plan, column_plan
+        FROM {table_image}
+        WHERE image_id = NEW.image_id;
+
+        SELECT x_origin, y_origin INTO x_from_plan, y_from_plan
+        FROM {table_pln}
+        WHERE plan_id = NEW.plan_id;
+
     -- Проверяет тип операции после которой выполняется
         IF TG_OP = 'INSERT' THEN
             -- Вставляет реальные координаты
@@ -56,13 +71,14 @@ query_after_insert = sql.SQL('''
                 x_2_final,
                 y_2_final,
                 class_id,
-                plan_id)
+                plan_id
+                )
             VALUES
                 (NEW.mark_id,
-                (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) + (NEW.x_1 / 20),
-                (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) - (NEW.y_1 / 20),
-                (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) + (NEW.x_2 / 20),
-                (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) - (NEW.y_2 / 20),
+                (x_from_plan) + (NEW.x_1 / 20) + (32 * column_plan),
+                (y_from_plan) - (NEW.y_1 / 20) - (32 * row_plan),
+                (x_from_plan) + (NEW.x_2 / 20) + (32 * column_plan),
+                (y_from_plan) - (NEW.y_2 / 20) - (32 * row_plan),
                 NEW.class_id,
                 NEW.plan_id
                 );
@@ -70,10 +86,10 @@ query_after_insert = sql.SQL('''
             -- Обновляет координаты
             UPDATE {table_mark}
             SET mark_id = NEW.mark_id,
-                x_1_final = (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) + (NEW.x_1 / 20),
-                y_1_final = (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) - (NEW.y_1 / 20),
-                x_2_final = (SELECT x_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) + (NEW.x_2 / 20),
-                y_2_final = (SELECT y_origin FROM {table_pln} WHERE plan_id = NEW.plan_id) - (NEW.y_2 / 20),
+                x_1_final = (x_from_plan) + (NEW.x_1 / 20) + (32 * column_plan),
+                y_1_final = (y_from_plan) - (NEW.y_1 / 20) - (32 * row_plan),
+                x_2_final = (x_from_plan) + (NEW.x_2 / 20) + (32 * column_plan),
+                y_2_final = (y_from_plan) - (NEW.y_2 / 20) - (32 * row_plan),
                 class_id = NEW.class_id,
                 plan_id = NEW.plan_id
             WHERE mark_id = OLD.mark_id;
@@ -83,7 +99,8 @@ query_after_insert = sql.SQL('''
     $$ LANGUAGE plpgsql;
 ''').format(
     table_mark=sql.Identifier(schema_name_in_db, mark_table_name_in_db),
-    table_pln=sql.Identifier(schema_name_in_db, drawing_table_name_in_db)
+    table_pln=sql.Identifier(schema_name_in_db, drawing_table_name_in_db),
+    table_image=sql.Identifier(schema_name_in_db, image_table_name_in_db)
 )
 
 # SQL запрос на создания тригера после вставки строки, добавлять экземпляр
