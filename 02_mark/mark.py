@@ -56,7 +56,7 @@ def mark_add():
 
         # Запись результатов работы нейросети.
         # Рамки, проценты, имена обработанных изображений и номера классов
-        frames = r.boxes.xyxy.cpu().numpy()
+        frames = np.round(r.boxes.xyxy.cpu().numpy(), 2)
         percent = r.boxes.conf.cpu().numpy()
         image_name = r.path.split('\\')[-1:][0]
         class_id = r.boxes.cls.cpu().numpy()
