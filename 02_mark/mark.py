@@ -56,26 +56,23 @@ def mark_add():
 
         # Запись результатов работы нейросети.
         # Рамки, проценты, имена обработанных изображений и номера классов
-        frames = np.round(r.boxes.xyxy.cpu().numpy(), 2)
+        frames = r.boxes.xyxy.cpu().numpy()
         percent = r.boxes.conf.cpu().numpy()
         image_name = r.path.split('\\')[-1:][0]
         class_id = r.boxes.cls.cpu().numpy()
-        class_id = int(class_id[0])
 
         # Создание размеченых изображений
         # im_array = r.plot()
         # im = Image.fromarray(im_array[..., ::-1])
         # im.save(f'result/{image_name}')
 
-        # Создание списка имен классов и перевод их к виду словаря
-        # в виде {номер: название класса}
-        class_names = r.names
-        class_names = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in class_names.items()}
+        # Создание списка имен классов из словаря. Словарь r.names
+        class_names_new = [r.names.get(ind) for ind in class_id]
 
         # Создание таблицы pandas
         df = pd.DataFrame(frames, columns=['x1', 'y1', 'x2', 'y2'])
         df['percent'] = pd.DataFrame(percent)
-        df['class_name'] = class_names[class_id]
+        df['class_name'] = class_names_new
         df['image_name'] = image_name
         # Приведение к типу float64 потому что postgreSQL ругается на тип
         # данных float32
