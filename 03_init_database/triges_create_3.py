@@ -75,10 +75,10 @@ query_after_insert = sql.SQL('''
                 )
             VALUES
                 (NEW.mark_id,
-                (x_from_plan) + (NEW.x_1 / 20) + (32 * column_plan),
-                (y_from_plan) - (NEW.y_1 / 20) - (32 * row_plan),
-                (x_from_plan) + (NEW.x_2 / 20) + (32 * column_plan),
-                (y_from_plan) - (NEW.y_2 / 20) - (32 * row_plan),
+                (x_from_plan) + (NEW.x_1 / 20) + (28 * column_plan),
+                (y_from_plan) - (NEW.y_1 / 20) - (28 * row_plan),
+                (x_from_plan) + (NEW.x_2 / 20) + (28 * column_plan),
+                (y_from_plan) - (NEW.y_2 / 20) - (28 * row_plan),
                 NEW.class_id,
                 NEW.plan_id
                 );
@@ -86,10 +86,10 @@ query_after_insert = sql.SQL('''
             -- Обновляет координаты
             UPDATE {table_mark}
             SET mark_id = NEW.mark_id,
-                x_1_final = (x_from_plan) + (NEW.x_1 / 20) + (32 * column_plan),
-                y_1_final = (y_from_plan) - (NEW.y_1 / 20) - (32 * row_plan),
-                x_2_final = (x_from_plan) + (NEW.x_2 / 20) + (32 * column_plan),
-                y_2_final = (y_from_plan) - (NEW.y_2 / 20) - (32 * row_plan),
+                x_1_final = (x_from_plan) + (NEW.x_1 / 20) + (28 * column_plan),
+                y_1_final = (y_from_plan) - (NEW.y_1 / 20) - (28 * row_plan),
+                x_2_final = (x_from_plan) + (NEW.x_2 / 20) + (28 * column_plan),
+                y_2_final = (y_from_plan) - (NEW.y_2 / 20) - (28 * row_plan),
                 class_id = NEW.class_id,
                 plan_id = NEW.plan_id
             WHERE mark_id = OLD.mark_id;
