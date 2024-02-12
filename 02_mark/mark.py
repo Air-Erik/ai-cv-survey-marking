@@ -74,6 +74,7 @@ def mark_add():
         df['percent'] = pd.DataFrame(percent)
         df['class_name'] = class_names_new
         df['image_name'] = image_name
+
         # Приведение к типу float64 потому что postgreSQL ругается на тип
         # данных float32
         df = df.astype({'x1': 'float64',
@@ -85,7 +86,6 @@ def mark_add():
         # Подключение к базе данных и исполнение SQL запроса на вставку данных
         with psycopg.connect('dbname=ai_project user=API_write_data \
         password=1111') as conn:
-
             try:
                 for i in df.index:
                     conn.execute(
