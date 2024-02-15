@@ -10,18 +10,16 @@ def main():
     print(torch.cuda.device(0))
     print(torch.cuda.get_device_name(0))
 
-    model_variant = "yolov8n-seg"
-    model = YOLO(f'{model_variant}.pt')
+    model = YOLO('yolov8l-seg.pt')
 
     args = dict(data='datasets/Segment_AI/data.yaml',
-                epochs=300,
+                epochs=100,
                 imgsz=640,
-                freeze=10,
-                patience=25
+                freeze=8,
+                patience=20,
                 )
 
     model.train(**args)
-    model.val()
 
 
 if __name__ == '__main__':
