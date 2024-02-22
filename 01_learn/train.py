@@ -15,7 +15,7 @@ def main():
     # название текущей сессии
     task = Task.init(
         project_name="AutoCAD",
-        task_name="yolov8l"
+        task_name="yolov8l_4class"
         )
 
     # ClearML; Определение модели на которой будет происходить обучение
@@ -26,7 +26,7 @@ def main():
     model = YOLO(f'{model_variant}.pt')
 
     # ClearML; Устанавка параметров обучения, передаются в функцию обучения
-    args = dict(data='datasets/AutoCAD_Topo_v6/data.yaml',
+    args = dict(data='datasets/AutoCAD_Topo_v7(4cls)/data.yaml',
                 epochs=300,
                 imgsz=640,
                 freeze=10,
@@ -38,7 +38,7 @@ def main():
     model.train(**args)
 
     # YOLO; Проверка модели с помощью сета валидации
-    model.val()
+    #model.val()
 
 
 # Необходимое условие для многопоточности. Без данной конструкции не возможен

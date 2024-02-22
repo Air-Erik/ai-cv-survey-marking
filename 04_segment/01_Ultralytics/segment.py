@@ -5,7 +5,7 @@ from PIL import Image
 model = YOLO('C:\\Repos\\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\runs\\segment\\train\\weights\\best.pt')  # load a pretrained model
 
 # Define path to directory containing images and videos for inference
-source = '../../02_mark/images/План 1_0_0 (2).jpg'
+source = '../../02_mark/images/План 1_0_0.jpg'
 
 # Run inference on the source
 results = model(source, stream=True)  # generator of Results objects
