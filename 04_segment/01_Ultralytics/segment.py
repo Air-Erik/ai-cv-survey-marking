@@ -3,7 +3,7 @@ from ultralytics import YOLO
 from PIL import Image
 
 # Load a model
-model = YOLO('C:\\Repos\\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\runs\\segment\\train24\\weights\\best.pt')  # load a pretrained model
+model = YOLO('C:\\Repos\\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\runs\\segment\\train23\\weights\\best.pt')  # load a pretrained model
 
 # Путь к папке с изображениями
 pth_raw = 'C:\\Repos\\Ayrapetov\\07_AI_project\\02_mark\\images'
