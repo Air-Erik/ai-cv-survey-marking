@@ -11,26 +11,34 @@ def main():
     print(torch.cuda.device(0))
     print(torch.cuda.get_device_name(0))
 
-    # ClearML; Создание объекта задачи для clearml, описывает проект и
-    # название текущей сессии
-    task = Task.init(
-        project_name="AutoCAD_segment",
-        task_name="png_pipe_4cls.v1"
-        )
-
     # ClearML; Определение модели на которой будет происходить обучение
-    model_variant = "yolov8l"
-    task.set_parameter("model_variant", model_variant)
+    model_name = "yolov8l"
+    dataset_name = 'png_pipe_4cls.v2'
 
-    model = YOLO('yolov8l-seg.pt')
-
-    args = dict(data='datasets/png_pipe_4cls.v1/data.yaml',
+    args = dict(data=f'datasets/{dataset_name}/data.yaml',
                 epochs=120,
                 imgsz=640,
                 freeze=10,
                 patience=30,
                 overlap_mask=False
                 )
+
+    # ClearML; Создание объекта задачи для clearml, описывает проект и
+    # название текущей сессии
+    task = Task.init(
+        project_name="AutoCAD_segment",
+        task_name=dataset_name,
+        tags=['png',
+              model_name,
+              f"epoch={args['epochs']}",
+              f"freeze={args['freeze']}",
+              f"patience={args['patience']}"
+              ]
+        )
+    task.set_parameter("model_variant", model_name)
+
+    model = YOLO(f'{model_name}-seg.pt')
+
     task.connect(args)
 
     model.train(**args)
