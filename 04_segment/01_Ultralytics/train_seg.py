@@ -15,7 +15,7 @@ def main():
     # название текущей сессии
     task = Task.init(
         project_name="AutoCAD_segment",
-        task_name="TEST 3.v2"
+        task_name="png_pipe_4cls.v1"
         )
 
     # ClearML; Определение модели на которой будет происходить обучение
@@ -24,7 +24,7 @@ def main():
 
     model = YOLO('yolov8l-seg.pt')
 
-    args = dict(data='datasets/TEST 3.v2/data.yaml',
+    args = dict(data='datasets/png_pipe_4cls.v1/data.yaml',
                 epochs=120,
                 imgsz=640,
                 freeze=10,
