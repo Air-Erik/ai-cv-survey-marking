@@ -6,7 +6,7 @@ from PIL import Image
 model = YOLO('C:\\Repos\\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\runs\\segment\\train29\\weights\\best.pt')  # load a pretrained model
 
 # Путь к папке с изображениями
-pth_raw = 'C:\\Repos\\Ayrapetov\\07_AI_project\\02_mark\\images'
+pth_raw = 'C:\\Repos\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\images'
 source = []
 for dirpath, dirnames, filenames in os.walk(pth_raw):
     for filename in filenames:

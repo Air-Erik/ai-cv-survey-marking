@@ -13,7 +13,7 @@ def main():
 
     # ClearML; Определение модели на которой будет происходить обучение
     model_name = "yolov8l"
-    dataset_name = 'png_pipe_4cls.v2'
+    dataset_name = 'png_pipe_4cls.v4'
 
     args = dict(data=f'datasets/{dataset_name}/data.yaml',
                 epochs=120,
