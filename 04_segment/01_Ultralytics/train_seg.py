@@ -13,14 +13,14 @@ def main():
 
     # ClearML; Определение модели на которой будет происходить обучение
     model_name = "yolov8l"
-    dataset_name = 'png_pipe_4cls.v4'
+    dataset_name = 'png_pipe_4cls.v5'
 
     args = dict(data=f'datasets/{dataset_name}/data.yaml',
                 epochs=120,
                 imgsz=640,
                 freeze=10,
                 patience=30,
-                overlap_mask=False
+                overlap_mask=True
                 )
 
     # ClearML; Создание объекта задачи для clearml, описывает проект и

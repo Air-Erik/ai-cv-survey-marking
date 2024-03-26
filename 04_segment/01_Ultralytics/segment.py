@@ -3,10 +3,11 @@ from ultralytics import YOLO
 from PIL import Image
 
 # Load a model
-model = YOLO('C:\\Repos\\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\runs\\segment\\train29\\weights\\best.pt')  # load a pretrained model
+model = YOLO('C:\\Repos\\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\runs\\segment\\train35\\weights\\best.pt')  # load a pretrained model
 
 # Путь к папке с изображениями
 pth_raw = 'C:\\Repos\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\images'
+pth_raw_test = 'C:\\Repos\\Ayrapetov\\07_AI_project\\04_segment\\01_Ultralytics\\datasets\\png_pipe_4cls.v4\\test\\images'
 source = []
 for dirpath, dirnames, filenames in os.walk(pth_raw):
     for filename in filenames:
